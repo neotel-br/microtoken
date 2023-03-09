@@ -10,6 +10,8 @@ from os import environ
 from http.client import HTTPSConnection, HTTPException
 from ssl import _create_unverified_context
 
+TIMEOUT = 20
+
 
 class TokenizeRequest(BaseModel):
     _placeholder: str
@@ -27,8 +29,7 @@ app = FastAPI()
 
 health = HealthCheckFactory()
 health.add(
-    HealthCheckCTS(
-        alias="cts", connectionUri=environ["CTS_IP"], tags=["external"])
+    HealthCheckCTS(alias="cts", connectionUri=environ["CTS_IP"], tags=["external"])
 )
 app.add_api_route("/healthcheck", endpoint=healthCheckRoute(factory=health))
 
@@ -59,8 +60,7 @@ def find_item_ignore_case(dictionary, key):
 @app.post("/tokenize/cpf")
 async def tokenize(
     request: Request,
-    tokenize_request: TokenizeRequest = Body(..., example={
-                                             "cpf": "111.111.111-11"}),
+    tokenize_request: TokenizeRequest = Body(..., example={"cpf": "111.111.111-11"}),
 ):
     """
     Tokenizes a `CPF` entry.
@@ -85,16 +85,14 @@ async def tokenize(
             }
 
         auth_token = "Basic " + b64encode(
-            f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode(
-                "utf-8")
+            f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode("utf-8")
         ).decode("ascii")
 
         context = _create_unverified_context()
         headers = {"Authorization": auth_token}
         body = dumps(tokenization_call_body)
-        conn = HTTPSConnection(environ["CTS_IP"], context=context)
-        conn.request("POST", "/vts/rest/v2.0/tokenize",
-                     headers=headers, body=body)
+        conn = HTTPSConnection(environ["CTS_IP"], context=context, timeout=TIMEOUT)
+        conn.request("POST", "/vts/rest/v2.0/tokenize", headers=headers, body=body)
         res = conn.getresponse()
 
         if res.status == 200:

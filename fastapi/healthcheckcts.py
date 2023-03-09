@@ -5,6 +5,8 @@ from typing import List
 from http.client import HTTPSConnection
 from ssl import _create_unverified_context
 
+TIMEOUT = 15
+
 
 class HealthCheckCTS(HealthCheckBase, HealthCheckInterface):
     _tags: List[str]
@@ -28,7 +30,7 @@ class HealthCheckCTS(HealthCheckBase, HealthCheckInterface):
 
     def __checkHealth__(self) -> bool:
         context = _create_unverified_context()
-        conn = HTTPSConnection(self._connectionUri, context=context)
+        conn = HTTPSConnection(self._connectionUri, context=context, timeout=TIMEOUT)
         conn.request("GET", "/")
         r = conn.getresponse()
 
