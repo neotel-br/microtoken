@@ -25,7 +25,25 @@ if not all([item in environ for item in ["CTS_IP", "CTS_USERNAME", "CTS_PASSWORD
     ]
     raise KeyError(f"Missing environment variable(s): {missing}")
 
-app = FastAPI()
+description = """
+    MicroToken API that tokenize your data! 🚀
+
+    In the MicroToken API you will be able to:
+
+    * Tokenize your data (implemented).
+    * HealthCheck the CTS environment (implemented).
+    * Get the metrics of the FastAPI (implemented).
+    * Get the environment (implemented).
+    """
+app = FastAPI(
+    title="MicroToken",
+    description=description,
+    version="0.0.1",
+    contact={
+        "name": "Neotel Segurança Digital",
+        "email": "suporte@neotel.com.br",
+    }
+)
 
 health = HealthCheckFactory()
 health.add(
@@ -39,11 +57,18 @@ app.add_api_route("/metrics", metrics_route)
 
 @app.get("/")
 def hello_world():
+    """
+    You are not cursed now!!!
+    """
     return {"Alô": "Mundo"}
 
 
 @app.get("/environment")
 def environment():
+    """
+        Get your environment.
+
+    """
     return loads(EnvironmentDump().run()[0])
 
 
