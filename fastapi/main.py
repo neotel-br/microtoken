@@ -3,7 +3,6 @@ from fastapi_healthcheck import HealthCheckFactory, healthCheckRoute
 from healthcheck import EnvironmentDump
 from healthcheckcts import HealthCheckCTS
 from prometheusrock import PrometheusMiddleware, metrics_route
-from pydantic import BaseModel
 from base64 import b64encode
 from json import loads, dumps, JSONDecodeError
 from os import environ
@@ -11,10 +10,6 @@ from http.client import HTTPSConnection, HTTPException
 from ssl import _create_unverified_context
 
 TIMEOUT = 20
-
-
-class TokenizeRequest(BaseModel):
-    _placeholder: str
 
 
 if not all([item in environ for item in ["CTS_IP", "CTS_USERNAME", "CTS_PASSWORD"]]):
@@ -86,8 +81,7 @@ def find_item_ignore_case(dictionary, key):
 @app.post("/tokenize/cpf")
 async def tokenize(
     request: Request,
-    tokenize_request: TokenizeRequest = Body(..., example={
-                                             "cpf": "111.111.111-11"}),
+    tokenize_request=Body(..., example=[{"cpf": "111.111.111-11"}]),
 ):
     """
     Tokenizes a `CPF` entry.
