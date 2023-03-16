@@ -1,0 +1,13 @@
+---
+version: "3"
+
+services:
+  microtoken:
+    image: neotel/microtoken-fastapi:latest
+    ports:
+      - "80:80"
+    environment:
+      - CTS_IP=
+      - CTS_USERNAME=
+      - CTS_PASSWORD=
+    restart: always
