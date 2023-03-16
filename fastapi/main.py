@@ -146,8 +146,7 @@ async def tokenize(
 @app.post("/detokenize/cpf")
 async def detokenize(
     request: Request,
-    tokenize_request: TokenizeRequest = Body(..., example={
-        "cpf": "t0#8tDWwe-OjS"}),
+    tokenize_request=Body(..., example={"cpf": "t0#8tDWwe-OjS"}),
 ):
     """
     Detokenizes a `CPF` entry
