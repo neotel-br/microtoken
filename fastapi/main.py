@@ -42,7 +42,8 @@ app = FastAPI(
 
 health = HealthCheckFactory()
 health.add(
-    HealthCheckCTS(alias="cts", connectionUri=environ["CTS_IP"], tags=["external"])
+    HealthCheckCTS(
+        alias="cts", connectionUri=environ["CTS_IP"], tags=["external"])
 )
 app.add_api_route("/healthcheck", endpoint=healthCheckRoute(factory=health))
 
@@ -105,16 +106,83 @@ async def tokenize(
             }
 
         auth_token = "Basic " + b64encode(
-            f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode("utf-8")
+            f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode(
+                "utf-8")
         ).decode("ascii")
 
         context = _create_unverified_context()
         headers = {"Authorization": auth_token}
         body = dumps(tokenization_call_body)
-        conn = HTTPSConnection(environ["CTS_IP"], context=context, timeout=TIMEOUT)
-        conn.request("POST", "/vts/rest/v2.0/tokenize", headers=headers, body=body)
+        conn = HTTPSConnection(
+            environ["CTS_IP"], context=context, timeout=TIMEOUT)
+        conn.request("POST", "/vts/rest/v2.0/tokenize",
+                     headers=headers, body=body)
         res = conn.getresponse()
 
+        if res.status == 200:
+            response = loads(res.read())
+            conn.close()
+            return response
+        conn.close()
+        raise HTTPException(
+            f"Unexpected server response status {res.status}. Reason: {res.reason}"
+        )
+
+    except JSONDecodeError as json_e:
+        print(json_e)
+        return Response(
+            dumps({"error": f"Failed to parse json: {str(json_e)}"}),
+            status_code=400,
+            headers={"Content-Type": "application/json"},
+        )
+    except Exception as e:
+        return Response(
+            dumps({"error": f"Tokenization failure: {str(e)}"}),
+            status_code=400,
+            headers={"Content-Type": "application/json"},
+        )
+
+
+@app.post("/detokenize/cpf")
+async def detokenize(
+    request: Request,
+    tokenize_request=Body(..., example={"cpf": "t0#8tDWwe-OjS"}),
+):
+    """
+    Detokenizes a `CPF` entry
+    """
+    try:
+        data = await request.json()
+
+        if isinstance(data, list):
+            tokenization_call_body = [
+                {
+                    "token": f"{find_item_ignore_case(datum, 'cpf')}",
+                    "tokengroup": "jogasp",
+                    "tokentemplate": "CPF",
+                }
+                for datum in data
+            ]
+        else:
+            tokenization_call_body = {
+                "token": f"{find_item_ignore_case(data, 'cpf')}",
+                "tokengroup": "jogasp",
+                "tokentemplate": "CPF",
+            }
+
+        auth_token = "Basic " + b64encode(
+            f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode(
+                "utf-8")
+        ).decode("ascii")
+
+        context = _create_unverified_context()
+        headers = {"Authorization": auth_token}
+        body = dumps(tokenization_call_body)
+        conn = HTTPSConnection(
+            environ["CTS_IP"], context=context, timeout=TIMEOUT)
+        conn.request("POST", "/vts/rest/v2.0/detokenize",
+                     headers=headers, body=body)
+        res = conn.getresponse()
         if res.status == 200:
             response = loads(res.read())
             conn.close()
