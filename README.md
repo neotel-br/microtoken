@@ -10,8 +10,7 @@ Microserviço de tokenização para *CipherTrust Tokenization Server*
 Development:
 
 ```console
-cd fastapi/
-uvicron main:app --reload
+make TARGET=fastapi dev
 ```
 
 ### Flask
@@ -19,6 +18,5 @@ uvicron main:app --reload
 Development:
 
 ```console
-cd flask/
-flask run --debug
+make TARGET=flask dev
 ```
