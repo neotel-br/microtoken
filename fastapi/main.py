@@ -11,14 +11,17 @@ from ssl import _create_unverified_context
 
 TIMEOUT = 20
 
+ENV_VARIABLES = ["CTS_IP", "CTS_USERNAME", "CTS_PASSWORD"]
 
-if not all([item in environ for item in ["CTS_IP", "CTS_USERNAME", "CTS_PASSWORD"]]):
-    missing = [
-        item
-        for item in ["CTS_IP", "CTS_USERNAME", "CTS_PASSWORD"]
-        if item not in environ
-    ]
+missing = [item for item in ENV_VARIABLES if item not in environ]
+
+if len(missing) > 0:
     raise KeyError(f"Missing environment variable(s): {missing}")
+
+empty = [item for item in ENV_VARIABLES if len(environ[item]) == 0]
+if len(empty) > 0:
+    raise KeyError(f"Empty environment variables: {empty}")
+
 
 description = """
     MicroToken API that tokenize your data! 🚀
@@ -37,13 +40,12 @@ app = FastAPI(
     contact={
         "name": "Neotel Segurança Digital",
         "email": "suporte@neotel.com.br",
-    }
+    },
 )
 
 health = HealthCheckFactory()
 health.add(
-    HealthCheckCTS(
-        alias="cts", connectionUri=environ["CTS_IP"], tags=["external"])
+    HealthCheckCTS(alias="cts", connectionUri=environ["CTS_IP"], tags=["external"])
 )
 app.add_api_route("/healthcheck", endpoint=healthCheckRoute(factory=health))
 
@@ -62,7 +64,7 @@ def hello_world():
 @app.get("/environment")
 def environment():
     """
-        Get your environment.
+    Get your environment.
 
     """
     return loads(EnvironmentDump().run()[0])
