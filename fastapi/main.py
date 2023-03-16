@@ -78,6 +78,28 @@ def find_item_ignore_case(dictionary, key):
     )
 
 
+def make_request(method, endpoint, data=None):
+    context = _create_unverified_context()
+    auth_token = "Basic " + b64encode(
+        f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode("utf-8")
+    ).decode("ascii")
+    headers = {"Authorization": auth_token}
+    if data is not None:
+        body = dumps(data)
+    conn = HTTPSConnection(environ["CTS_IP"], context=context, timeout=TIMEOUT)
+    conn.request(method, endpoint, headers=headers, body=body)
+    res = conn.getresponse()
+
+    if res.status == 200:
+        response = loads(res.read())
+        conn.close()
+        return response
+    conn.close()
+    raise HTTPException(
+        f"Unexpected server response status {res.status}. Reason: {res.reason}"
+    )
+
+
 @app.post("/tokenize/cpf")
 async def tokenize(
     request: Request,
@@ -104,29 +126,10 @@ async def tokenize(
                 "tokengroup": "jogasp",
                 "tokentemplate": "CPF",
             }
-
-        auth_token = "Basic " + b64encode(
-            f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode(
-                "utf-8")
-        ).decode("ascii")
-
-        context = _create_unverified_context()
-        headers = {"Authorization": auth_token}
-        body = dumps(tokenization_call_body)
-        conn = HTTPSConnection(
-            environ["CTS_IP"], context=context, timeout=TIMEOUT)
-        conn.request("POST", "/vts/rest/v2.0/tokenize",
-                     headers=headers, body=body)
-        res = conn.getresponse()
-
-        if res.status == 200:
-            response = loads(res.read())
-            conn.close()
-            return response
-        conn.close()
-        raise HTTPException(
-            f"Unexpected server response status {res.status}. Reason: {res.reason}"
+        response = make_request(
+            "POST", "/vts/rest/v2.0/tokenize", tokenization_call_body
         )
+        return response
 
     except JSONDecodeError as json_e:
         print(json_e)
@@ -170,27 +173,10 @@ async def detokenize(
                 "tokentemplate": "CPF",
             }
 
-        auth_token = "Basic " + b64encode(
-            f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode(
-                "utf-8")
-        ).decode("ascii")
-
-        context = _create_unverified_context()
-        headers = {"Authorization": auth_token}
-        body = dumps(tokenization_call_body)
-        conn = HTTPSConnection(
-            environ["CTS_IP"], context=context, timeout=TIMEOUT)
-        conn.request("POST", "/vts/rest/v2.0/detokenize",
-                     headers=headers, body=body)
-        res = conn.getresponse()
-        if res.status == 200:
-            response = loads(res.read())
-            conn.close()
-            return response
-        conn.close()
-        raise HTTPException(
-            f"Unexpected server response status {res.status}. Reason: {res.reason}"
+        response = make_request(
+            "POST", "/vts/rest/v2.0/detokenize", tokenization_call_body
         )
+        return response
 
     except JSONDecodeError as json_e:
         print(json_e)
