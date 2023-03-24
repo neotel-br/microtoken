@@ -108,37 +108,42 @@ def make_request(method, endpoint, data=None):
     )
 
 
-@app.post("/tokenize/cpf")
-async def tokenize(
-    request: Request,
-    tokenize_request=Body(..., example=[{"cpf": "111.111.111-11"}]),
-):
+token_templates: dict = {
+    "cpf": {"tokentemplate": "CPF", "tokengroup": "jogasp"},
+    "cc": {"tokentemplate": "CREDIT_CARD", "tokengroup": "jogasp"},
+}
+
+
+def token(op, datatype, data):
     """
-    Tokenizes a `CPF` entry.
+    Calls the actual tokenization service to obtain tokenized or detokenized entries
+    :op: operation to be performed. Can be either `tokenize` or `detokenize`
+    :datatype: determines the type of data to be (de)tokenized, used to locate the correct template for (de)tokenization. In this demo, can be either `cpf` or `cc`.
+    :data: request body in json format, containing the data to be (de)tokenized.
     """
     try:
-        data = await request.json()
-
+        if datatype not in token_templates:
+            raise KeyError(f"Unknown field `{datatype}` for tokenization")
+        mode = "data" if op == "tokenize" else "token"
+        token_template = token_templates[datatype]["tokentemplate"]
+        token_group = token_templates[datatype]["tokengroup"]
         if isinstance(data, list):
             tokenization_call_body = [
                 {
-                    "data": f"{find_item_ignore_case(datum, 'cpf')}",
-                    "tokengroup": "jogasp",
-                    "tokentemplate": "CPF",
+                    f"{mode}": find_item_ignore_case(datum, datatype),
+                    "tokentemplate": token_template,
+                    "tokengroup": token_group,
                 }
                 for datum in data
             ]
         else:
             tokenization_call_body = {
-                "data": f"{find_item_ignore_case(data, 'cpf')}",
-                "tokengroup": "jogasp",
-                "tokentemplate": "CPF",
+                f"{mode}": find_item_ignore_case(data, datatype),
+                "tokentemplate": token_template,
+                "tokengroup": token_group,
             }
-        response = make_request(
-            "POST", "/vts/rest/v2.0/tokenize", tokenization_call_body
-        )
+        response = make_request("POST", f"/vts/rest/v2.0/{op}", tokenization_call_body)
         return response
-
     except JSONDecodeError as json_e:
         print(json_e)
         return Response(
@@ -146,6 +151,33 @@ async def tokenize(
             status_code=400,
             headers={"Content-Type": "application/json"},
         )
+
+
+@app.post(
+    "/tokenize/{datatype}",
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": {"token": "t0#8tDWwe-OjS", "status": "Succeed"}
+                }
+            }
+        }
+    },
+)
+async def tokenize(
+    datatype: str,
+    request: Request,
+    tokenize_request=Body(..., example=[{"cpf": "111.111.111-11"}]),
+):
+    """
+    Performs tokenization on specified `datatype`.
+
+    `datatype` determines the type of data to be tokenized, used to locate the correct template for tokenization. In this demo, can be either `cpf` or `cc`.
+    """
+    try:
+        data = await request.json()
+        return token("tokenize", datatype, data)
     except Exception as e:
         return Response(
             dumps({"error": f"Tokenization failure: {str(e)}"}),
@@ -154,45 +186,31 @@ async def tokenize(
         )
 
 
-@app.post("/detokenize/cpf")
+@app.post(
+    "/detokenize/{datatype}",
+    responses={
+        200: {
+            "content": {
+                "application/json": {
+                    "example": {"data": "111***********", "status": "Succeed"}
+                }
+            }
+        },
+    },
+)
 async def detokenize(
+    datatype,
     request: Request,
     tokenize_request=Body(..., example={"cpf": "t0#8tDWwe-OjS"}),
 ):
     """
-    Detokenizes a `CPF` entry
+    Performs detokenization on specified `datatype`.
+
+    `datatype` determines the type of data to be detokenized, used to locate the correct template for tokenization. In this demo, can be either `cpf` or `cc`.
     """
     try:
         data = await request.json()
-
-        if isinstance(data, list):
-            tokenization_call_body = [
-                {
-                    "token": f"{find_item_ignore_case(datum, 'cpf')}",
-                    "tokengroup": "jogasp",
-                    "tokentemplate": "CPF",
-                }
-                for datum in data
-            ]
-        else:
-            tokenization_call_body = {
-                "token": f"{find_item_ignore_case(data, 'cpf')}",
-                "tokengroup": "jogasp",
-                "tokentemplate": "CPF",
-            }
-
-        response = make_request(
-            "POST", "/vts/rest/v2.0/detokenize", tokenization_call_body
-        )
-        return response
-
-    except JSONDecodeError as json_e:
-        print(json_e)
-        return Response(
-            dumps({"error": f"Failed to parse json: {str(json_e)}"}),
-            status_code=400,
-            headers={"Content-Type": "application/json"},
-        )
+        return token("detokenize", datatype, data)
     except Exception as e:
         return Response(
             dumps({"error": f"Tokenization failure: {str(e)}"}),
