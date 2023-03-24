@@ -47,10 +47,14 @@ health = HealthCheckFactory()
 health.add(
     HealthCheckCTS(alias="cts", connectionUri=environ["CTS_IP"], tags=["external"])
 )
-app.add_api_route("/healthcheck", endpoint=healthCheckRoute(factory=health))
+app.add_api_route(
+    "/healthcheck",
+    endpoint=healthCheckRoute(factory=health),
+    description="Tests server connection to tokenization services",
+)
 
 app.add_middleware(PrometheusMiddleware)
-app.add_api_route("/metrics", metrics_route)
+app.add_api_route("/metrics", metrics_route, description="Shows metrics of this API")
 
 
 @app.get("/")
@@ -64,8 +68,7 @@ def hello_world():
 @app.get("/environment")
 def environment():
     """
-    Get your environment.
-
+    Fetches environment variables of the server
     """
     return loads(EnvironmentDump().run()[0])
 
@@ -76,11 +79,14 @@ def find_item_ignore_case(dictionary, key):
         if k.lower() == key:
             return dictionary[k]
     raise KeyError(
-        f"Key '{key}' or its case variations(e.g.: '{key.upper()}') was not found in json body"
+        f"Key `{key}` or its case variations(e.g.: `{key.upper()}`) were not found in request body"
     )
 
 
 def make_request(method, endpoint, data=None):
+    """
+    Performs connection to the tokenization service.
+    """
     context = _create_unverified_context()
     auth_token = "Basic " + b64encode(
         f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode("utf-8")
