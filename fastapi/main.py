@@ -11,7 +11,16 @@ from ssl import _create_unverified_context
 
 TIMEOUT = 20
 
-ENV_VARIABLES = ["CTS_IP", "CTS_USERNAME", "CTS_PASSWORD"]
+ENV_VARIABLES = [
+    "CTS_IP",
+    "CTS_USERNAME_TOKENIZATION",
+    "CTS_PASSWORD_TOKENIZATION",
+    "CTS_USERNAME_DETOKENIZATION_MASK1",
+    "CTS_PASSWORD_DETOKENIZATION_MASK1",
+    "CTS_USERNAME_DETOKENIZATION_MASK2",
+    "CTS_PASSWORD_DETOKENIZATION_MASK2",
+]
+
 
 missing = [item for item in ENV_VARIABLES if item not in environ]
 
@@ -83,13 +92,15 @@ def find_item_ignore_case(dictionary, key):
     )
 
 
-def make_request(method, endpoint, data=None):
+def make_request(method, endpoint, username, data=None):
     """
     Performs connection to the tokenization service.
     """
     context = _create_unverified_context()
+    password = username.replace("USERNAME", "PASSWORD")
+    print(f"{environ[username]}")
     auth_token = "Basic " + b64encode(
-        f'{environ["CTS_USERNAME"]}:{environ["CTS_PASSWORD"]}'.encode("utf-8")
+        f"{environ[username]}:{environ[password]}".encode("utf-8")
     ).decode("ascii")
     headers = {"Authorization": auth_token}
     if data is not None:
@@ -109,17 +120,134 @@ def make_request(method, endpoint, data=None):
 
 
 token_templates: dict = {
-    "cpf": {"tokentemplate": "CPF", "tokengroup": "jogasp"},
-    "cc": {"tokentemplate": "CREDIT_CARD", "tokengroup": "jogasp"},
+    # "cpf": {"tokentemplate": "CPF", "tokengroup": "jogasp"},
+    "name": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "titlejob": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "cpf": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "rg": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "birthdate": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "startdate": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "salary": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "email": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "phone": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "bank": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "agency": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "cc": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    "id": {
+        "tokentemplate": "defaultTemplate",
+        "tokengroup": "defaultGroup",
+        "username": {
+            "tokenize": "CTS_USERNAME_TOKENIZATION",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+        },
+    },
+    # "cc": {"tokentemplate": "CREDIT_CARD", "tokengroup": "jogasp"},
 }
 
 
-def token(op, datatype, data):
+def token(op, datatype, data, detokenize_clear=False):
     """
     Calls the actual tokenization service to obtain tokenized or detokenized entries
     :op: operation to be performed. Can be either `tokenize` or `detokenize`
     :datatype: determines the type of data to be (de)tokenized, used to locate the correct template for (de)tokenization. In this demo, can be either `cpf` or `cc`.
-    :data: request body in json format, containing the data to be (de)tokenized.
+    :data: request body in json format, containing the data to be (d.e)tokenized.
     """
     try:
         if datatype not in token_templates:
@@ -127,6 +255,14 @@ def token(op, datatype, data):
         mode = "data" if op == "tokenize" else "token"
         token_template = token_templates[datatype]["tokentemplate"]
         token_group = token_templates[datatype]["tokengroup"]
+        if op == "detokenize":
+            username = (
+                token_templates[datatype]["username"]["detokenize_clear"]
+                if detokenize_clear
+                else token_templates[datatype]["username"][op]
+            )
+        else:
+            username = token_templates[datatype]["username"][op]
         if isinstance(data, list):
             tokenization_call_body = [
                 {
@@ -142,7 +278,9 @@ def token(op, datatype, data):
                 "tokentemplate": token_template,
                 "tokengroup": token_group,
             }
-        response = make_request("POST", f"/vts/rest/v2.0/{op}", tokenization_call_body)
+        response = make_request(
+            "POST", f"/vts/rest/v2.0/{op}", username, tokenization_call_body
+        )
         return response
     except JSONDecodeError as json_e:
         print(json_e)
@@ -171,9 +309,9 @@ async def tokenize(
     tokenize_request=Body(..., example=[{"cpf": "111.111.111-11"}]),
 ):
     """
-    Performs tokenization on specified `datatype`.
-
-    `datatype` determines the type of data to be tokenized, used to locate the correct template for tokenization. In this demo, can be either `cpf` or `cc`.
+        Performs tokenization on specified `datatype`.
+    .
+        `datatype` determines the type of data to be tokenized, used to locate the correct template for tokenization. In this demo, can be either `cpf` or `cc`.
     """
     try:
         data = await request.json()
@@ -200,6 +338,7 @@ async def tokenize(
 )
 async def detokenize(
     datatype,
+    clear: bool,
     request: Request,
     tokenize_request=Body(..., example={"cpf": "t0#8tDWwe-OjS"}),
 ):
@@ -207,10 +346,11 @@ async def detokenize(
     Performs detokenization on specified `datatype`.
 
     `datatype` determines the type of data to be detokenized, used to locate the correct template for tokenization. In this demo, can be either `cpf` or `cc`.
+    `clear` determines if the data will be masked or not. If set to `True`, data will be returned in cleartext. If set to `False`, data will be masked. Defaults to `False`
     """
     try:
         data = await request.json()
-        return token("detokenize", datatype, data)
+        return token("detokenize", datatype, data, detokenize_clear=clear)
     except Exception as e:
         return Response(
             dumps({"error": f"Tokenization failure: {str(e)}"}),

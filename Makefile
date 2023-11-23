@@ -14,7 +14,7 @@ push:
 .PHONY: dev
 dev:
 ifeq ($(TARGET),fastapi)
-	uvicorn --app-dir fastapi main:app --reload
+	uvicorn --app-dir fastapi main:app --reload --port 3700
 else ifeq ($(TARGET),flask)
 	flask run --debug
 else
