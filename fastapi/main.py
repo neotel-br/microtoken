@@ -15,10 +15,24 @@ ENV_VARIABLES = [
     "CTS_IP",
     "CTS_USERNAME_TOKENIZATION",
     "CTS_PASSWORD_TOKENIZATION",
-    "CTS_USERNAME_DETOKENIZATION_MASK1",
-    "CTS_PASSWORD_DETOKENIZATION_MASK1",
-    "CTS_USERNAME_DETOKENIZATION_MASK2",
-    "CTS_PASSWORD_DETOKENIZATION_MASK2",
+    "CTS_USERNAME_DETOKENIZATION_CLEAR",
+    "CTS_PASSWORD_DETOKENIZATION_CLEAR",
+    "CTS_USERNAME_DETOKENIZATION_CPF",
+    "CTS_PASSWORD_DETOKENIZATION_CPF",
+    "CTS_USERNAME_DETOKENIZATION_RG",
+    "CTS_PASSWORD_DETOKENIZATION_RG",
+    "CTS_USERNAME_DETOKENIZATION_SALARY",
+    "CTS_PASSWORD_DETOKENIZATION_SALARY",
+    "CTS_USERNAME_DETOKENIZATION_EMAIL",
+    "CTS_PASSWORD_DETOKENIZATION_EMAIL",
+    "CTS_USERNAME_DETOKENIZATION_PHONE",
+    "CTS_PASSWORD_DETOKENIZATION_PHONE",
+    "CTS_USERNAME_DETOKENIZATION_BANK",
+    "CTS_PASSWORD_DETOKENIZATION_BANK",
+    "CTS_USERNAME_DETOKENIZATION_AGENCY",
+    "CTS_PASSWORD_DETOKENIZATION_AGENCY",
+    "CTS_USERNAME_DETOKENIZATION_CC",
+    "CTS_PASSWORD_DETOKENIZATION_CC",
 ]
 
 
@@ -98,7 +112,7 @@ def make_request(method, endpoint, username, data=None):
     """
     context = _create_unverified_context()
     password = username.replace("USERNAME", "PASSWORD")
-    print(f"{environ[username]}")
+    print(f"{environ[username]}:{environ[password]}")
     auth_token = "Basic " + b64encode(
         f"{environ[username]}:{environ[password]}".encode("utf-8")
     ).decode("ascii")
@@ -121,121 +135,76 @@ def make_request(method, endpoint, username, data=None):
 
 token_templates: dict = {
     # "cpf": {"tokentemplate": "CPF", "tokengroup": "jogasp"},
-    "name": {
-        "tokentemplate": "defaultTemplate",
-        "tokengroup": "defaultGroup",
-        "username": {
-            "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
-        },
-    },
-    "titlejob": {
-        "tokentemplate": "defaultTemplate",
-        "tokengroup": "defaultGroup",
-        "username": {
-            "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
-        },
-    },
     "cpf": {
-        "tokentemplate": "defaultTemplate",
+        "tokentemplate": "CPF",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_CPF",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
         },
     },
     "rg": {
-        "tokentemplate": "defaultTemplate",
+        "tokentemplate": "RG",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
-        },
-    },
-    "birthdate": {
-        "tokentemplate": "defaultTemplate",
-        "tokengroup": "defaultGroup",
-        "username": {
-            "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
-        },
-    },
-    "startdate": {
-        "tokentemplate": "defaultTemplate",
-        "tokengroup": "defaultGroup",
-        "username": {
-            "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_RG",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
         },
     },
     "salary": {
-        "tokentemplate": "defaultTemplate",
+        "tokentemplate": "SALARY",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_SALARY",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
         },
     },
     "email": {
-        "tokentemplate": "defaultTemplate",
+        "tokentemplate": "EMAIL",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_EMAIL",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
         },
     },
     "phone": {
-        "tokentemplate": "defaultTemplate",
+        "tokentemplate": "PHONE",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_PHONE",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
         },
     },
     "bank": {
-        "tokentemplate": "defaultTemplate",
+        "tokentemplate": "BANK",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_BANK",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
         },
     },
     "agency": {
-        "tokentemplate": "defaultTemplate",
+        "tokentemplate": "AGENCY",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_AGENCY",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
         },
     },
     "cc": {
-        "tokentemplate": "defaultTemplate",
+        "tokentemplate": "CC",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
-        },
-    },
-    "id": {
-        "tokentemplate": "defaultTemplate",
-        "tokengroup": "defaultGroup",
-        "username": {
-            "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_MASK1",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_MASK2",
+            "detokenize": "CTS_USERNAME_DETOKENIZATION_CC",
+            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
         },
     },
     # "cc": {"tokentemplate": "CREDIT_CARD", "tokengroup": "jogasp"},
