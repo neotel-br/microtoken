@@ -34,10 +34,12 @@ Microserviço de tokenização para *CipherTrust Tokenization Server*
     
 Development:
 
+*Make*
 ```console
 make TARGET=fastapi dev
 ```
 
+*Docker*
 ```console
 docker-compose up
 ```
