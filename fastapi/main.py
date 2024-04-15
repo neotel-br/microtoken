@@ -35,7 +35,6 @@ ENV_VARIABLES = [
     "CTS_PASSWORD_DETOKENIZATION_CC",
 ]
 
-
 missing = [item for item in ENV_VARIABLES if item not in environ]
 
 if len(missing) > 0:
