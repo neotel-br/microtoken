@@ -2,9 +2,14 @@
 
 Microserviço de tokenização para *CipherTrust Tokenization Server*
 
+## Uso
 
-## Editar .env
+### FastAPI
 
+#### Criar .env
+    touch fastapi/.env
+
+##### Variáveis
     CTS_IP=""                                                                              
     CTS_USERNAME_TOKENIZATION=""
     CTS_PASSWORD_TOKENIZATION=""
@@ -26,11 +31,7 @@ Microserviço de tokenização para *CipherTrust Tokenization Server*
     CTS_PASSWORD_DETOKENIZATION_CC=""
     CTS_USERNAME_DETOKENIZATION_CLEAR=""
     CTS_PASSWORD_DETOKENIZATION_CLEAR=""
-
-## Uso
-
-### FastAPI
-
+    
 Development:
 
 ```console
