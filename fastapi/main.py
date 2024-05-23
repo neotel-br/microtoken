@@ -21,8 +21,6 @@ ENV_VARIABLES = [
     "CTS_PASSWORD_DETOKENIZATION_CPF",
     "CTS_USERNAME_DETOKENIZATION_RG",
     "CTS_PASSWORD_DETOKENIZATION_RG",
-    "CTS_USERNAME_DETOKENIZATION_SALARY",
-    "CTS_PASSWORD_DETOKENIZATION_SALARY",
     "CTS_USERNAME_DETOKENIZATION_EMAIL",
     "CTS_PASSWORD_DETOKENIZATION_EMAIL",
     "CTS_USERNAME_DETOKENIZATION_PHONE",
@@ -111,7 +109,6 @@ def make_request(method, endpoint, username, data=None):
     """
     context = _create_unverified_context()
     password = username.replace("USERNAME", "PASSWORD")
-    print(f"{environ[username]}:{environ[password]}")
     auth_token = "Basic " + b64encode(
         f"{environ[username]}:{environ[password]}".encode("utf-8")
     ).decode("ascii")
@@ -135,7 +132,7 @@ def make_request(method, endpoint, username, data=None):
 token_templates: dict = {
     # "cpf": {"tokentemplate": "CPF", "tokengroup": "jogasp"},
     "cpf": {
-        "tokentemplate": "CPF",
+        "tokentemplate": "defaultTemplate",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
@@ -144,7 +141,7 @@ token_templates: dict = {
         },
     },
     "rg": {
-        "tokentemplate": "RG",
+        "tokentemplate": "defaultTemplate",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
@@ -152,17 +149,8 @@ token_templates: dict = {
             "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
         },
     },
-    "salary": {
-        "tokentemplate": "SALARY",
-        "tokengroup": "defaultGroup",
-        "username": {
-            "tokenize": "CTS_USERNAME_TOKENIZATION",
-            "detokenize": "CTS_USERNAME_DETOKENIZATION_SALARY",
-            "detokenize_clear": "CTS_USERNAME_DETOKENIZATION_CLEAR",
-        },
-    },
     "email": {
-        "tokentemplate": "EMAIL",
+        "tokentemplate": "defaultTemplate",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
@@ -171,7 +159,7 @@ token_templates: dict = {
         },
     },
     "phone": {
-        "tokentemplate": "PHONE",
+        "tokentemplate": "defaultTemplate",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
@@ -180,7 +168,7 @@ token_templates: dict = {
         },
     },
     "bank": {
-        "tokentemplate": "BANK",
+        "tokentemplate": "defaultTemplate",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
@@ -189,7 +177,7 @@ token_templates: dict = {
         },
     },
     "agency": {
-        "tokentemplate": "AGENCY",
+        "tokentemplate": "defaultTemplate",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
@@ -198,7 +186,7 @@ token_templates: dict = {
         },
     },
     "cc": {
-        "tokentemplate": "CC",
+        "tokentemplate": "defaultTemplate",
         "tokengroup": "defaultGroup",
         "username": {
             "tokenize": "CTS_USERNAME_TOKENIZATION",
